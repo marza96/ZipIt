@@ -1,4 +1,4 @@
-from base_graph import BIGGraph, NodeType
+from .base_graph import BIGGraph, NodeType
 
 class MLPGraph(BIGGraph):
     def __init__(self, model, num_layers):
