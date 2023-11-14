@@ -1,7 +1,3 @@
-import sys
-
-py_file_location = sys.path.insert(0, "/content/")
-
 from models.mlp import MLP
 from graphs.mlp_graph import MLPGraph
 from model_merger import ModelMerge
