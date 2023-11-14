@@ -28,7 +28,7 @@ if __name__ == "__main__":
     model2 = MLP(h=128, layers=5).eval()
 
     load_model(model1, "REPAIR_MTZ/mlps2/fash_mnist_mlp_e50_l5_h128_v2_cuda.pt")
-    load_model(model2, "REPAIR_MTZ/mlps2/mnist_mlp_e50_l5_h128_v1.pt")
+    load_model(model2, "REPAIR_MTZ/mlps2/mnist_mlp_e50_l5_h128_v1_cuda.pt")
 
     graph1 = MLPGraph(model1, 5).graphify()  
     graph2 = MLPGraph(model2, 5).graphify()  
