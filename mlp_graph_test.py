@@ -74,5 +74,5 @@ if __name__ == "__main__":
     merge = ModelMerge(graph1, graph2)
     merge.transform(model3, ConcatTrainLoader, transform_fn=match_tensors_zipit)
 
-    save_model(merge, "merged.pt")
+    save_model(merge.head_models, "merged.pt")
      
