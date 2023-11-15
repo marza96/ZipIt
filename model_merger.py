@@ -112,9 +112,9 @@ class MergeHandler:
                 lower = idx * chunk_size
                 upper = (idx+1) * chunk_size
 
-            module.weight.data[lower:upper] = self.merge @ module.weight[lower:upper]
+            module.weight.data[lower:upper] = self.merge @ module.weight[lower:upper] * self.a
             if hasattr(module, 'bias') and module.bias is not None:
-                module.bias.data[lower:upper] = self.merge @ module.bias[lower:upper]
+                module.bias.data[lower:upper] = self.merge @ module.bias[lower:upper] * self.a
 
     def prop_back(self, node):
         """ Propogate (un)merge metrics backwards through a node graph. """
