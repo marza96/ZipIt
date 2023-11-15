@@ -86,6 +86,19 @@ def main(dataset0, dataset1, device="cuda"):
     load_model(model1, path + '/pt_models/%smlp_e50_l%d_h%d_v1_%s.pt' % (prefix0, layers, h, device))
     load_model(model2, path + '/pt_models/%smlp_e50_l%d_h%d_v2_%s.pt' % (prefix1, layers, h, device))
 
+    graph1 = MLPGraph(model1, 5).graphify()  
+    graph2 = MLPGraph(model2, 5).graphify()  
+
+    model3 = MLP(h=128, layers=5).eval()
+    merge  = ModelMerge(graph1, graph2)
+
+    merge.transform(model3, ConcatTrainLoader, transform_fn=match_tensors_zipit)
+    
+    print(merge.merges.keys())
+    print(merge.merges[5][0][:20, :20])
+    print(merge.merges[5][0][:20, :].sum(dim=1))
+
+    save_model(merge.head_models[0], "merged.pt")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
