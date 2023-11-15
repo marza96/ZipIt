@@ -314,7 +314,7 @@ class ModelMerge(nn.Module):
         self.compute_transform_time = time() - start_time
         return self.merges, self.unmerges
     
-    def apply_transformations(self):
+    def apply_transformations(self, a=None):
         """
         Applys transformations found by compute_transformations from start_at up to stop_at graph node location 
         on all graph models. 
@@ -323,8 +323,9 @@ class ModelMerge(nn.Module):
             merges = self.merges[node]
             unmerges = self.unmerges[node]
 
-            merges[0][merges[0] > 0] *= 0.9
-            merges[1][merges[1] > 0] *= 0.1
+            if a is not None:
+                merges[0][merges[0] > 0] *= a
+                merges[1][merges[1] > 0] *= 1.0 - a
 
             print("DBG", torch.unique(merges[0]))
             print("DBG", torch.unique(merges[1]))
@@ -450,6 +451,7 @@ class ModelMerge(nn.Module):
             
     def transform(self, model,
                   dataloader,
+                  a,
                   metric_classes=(CovarianceMetric, MeanMetric),
                   transform_fn=match_tensors_zipit,
                   prune_threshold=0.,
@@ -476,7 +478,7 @@ class ModelMerge(nn.Module):
                                     prune_threshold=prune_threshold,
                                     **transform_kwargs
                                     )
-        self.apply_transformations()
+        self.apply_transformations(a=a)
         
         self.merged_model.load_state_dict(self.get_merged_state_dict(), strict=False)
         
