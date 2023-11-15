@@ -323,7 +323,9 @@ class ModelMerge(nn.Module):
             merges = self.merges[node]
             unmerges = self.unmerges[node]
 
-            print("DBG", torch.unique(merges[0]), torch.unique(merges[0]))
+            print("DBG", torch.unique(merges[0]))
+            print("DBG", torch.unique(merges[1]))
+            print("---------------------------------")
             
             for merge, unmerge, graph in zip(merges, unmerges, self.graphs):
                 merger = MergeHandler(graph, merge, unmerge)
