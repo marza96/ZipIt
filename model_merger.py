@@ -324,12 +324,12 @@ class ModelMerge(nn.Module):
             unmerges = self.unmerges[node]
 
             if a is not None:
-                a *= 2
+                a *= 2.0
                 merges[0][merges[0] > 0] *= a
-                merges[1][merges[1] > 0] *= 1.0 - a
+                merges[1][merges[1] > 0] *= 2.0 - a
 
                 unmerges[0][unmerges[0] > 0] *= a
-                unmerges[1][unmerges[1] > 0] *= 1.0 - a
+                unmerges[1][unmerges[1] > 0] *= 2.0 - a
 
             print("DBG", torch.unique(merges[0]))
             print("DBG", torch.unique(merges[1]))
