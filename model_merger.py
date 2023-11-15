@@ -338,9 +338,9 @@ class ModelMerge(nn.Module):
 
             idx = 0
             for merge, unmerge, graph in zip(merges, unmerges, self.graphs):
-                fac = 2.0 * a
+                fac = 1.0 * a
                 if idx == 1:
-                    fac = 2.0 - 2.0 * a
+                    fac = 1.0 - 1.0 * a
                 merger = MergeHandler(graph, merge, unmerge, fac)
                 merger.prop_back(node)
                 idx += 1
