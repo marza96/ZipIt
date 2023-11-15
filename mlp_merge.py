@@ -119,7 +119,7 @@ def main(dataset0, dataset1, device="cuda"):
     # print(merge.merges[5][0][:20, :20])
     # print("DBG", torch.unique(merge.merges[5][0]))
 
-    print("FUSED ACC:", eval_tools.evaluate_acc(merge.head_models[0], loader=FashionMNISTTrainLoader, device=device))
+    print("FUSED ACC:", eval_tools.evaluate_acc(merge.head_models[0], loader=ConcatTrainLoader, device=device))
 
     save_model(merge.head_models[0], "merged.pt")
 
