@@ -11,6 +11,7 @@ import os
 import torch
 import argparse
 import torchvision
+import eval_tools
 
 
 def save_model(model, i):
@@ -98,6 +99,8 @@ def main(dataset0, dataset1, device="cuda"):
     print(merge.merges[5][0][:20, :20])
     print(merge.merges[5][0][:20, :].sum(dim=1))
 
+    print("FUSED ACC:", eval_tools.evaluate_acc(merge.head_models[0], loader=FashionMNISTTrainLoader, device=device))
+
     save_model(merge.head_models[0], "merged.pt")
 
 if __name__ == "__main__":
@@ -108,30 +111,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args.dataset0, args.dataset1, device=args.device)
-
-
-    # # MOVE TO MAIN()
-    # model1 = MLP(h=128, layers=5).eval()
-    # model2 = MLP(h=128, layers=5).eval()
-
-    # load_model(model1, "REPAIR_MTZ/mlps2/fash_mnist_mlp_e50_l5_h128_v2_cuda.pt")
-    # load_model(model2, "REPAIR_MTZ/mlps2/mnist_mlp_e50_l5_h128_v1_cuda.pt")
-
-    # graph1 = MLPGraph(model1, 5).graphify()  
-    # graph2 = MLPGraph(model2, 5).graphify()  
-
-    # model3 = MLP(h=128, layers=5).eval()
-
-    
-
-    # merge = ModelMerge(graph1, graph2)
-    # merge.transform(model3, ConcatTrainLoader, transform_fn=match_tensors_zipit)
-    
-    # left_merge = merge.merges[5][0]
-
-    # print(merge.merges.keys())
-    # print(merge.merges[5][0][:20, :20])
-    # print(merge.merges[5][0][:20, :].sum(dim=1))
-
-    # save_model(merge.head_models[0], "merged.pt")
      
