@@ -4,6 +4,8 @@ from model_merger import ModelMerge
 from matching_functions import match_tensors_zipit
 
 import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
+import numpy as np
 
 from torch.utils.data import ConcatDataset
 
@@ -94,14 +96,21 @@ def main(dataset0, dataset1, device="cuda"):
     merge  = ModelMerge(graph1, graph2)
 
     alpha = torch.linspace(0.0, 1.0, 10)
+    zipit_acc = list()
     for a in alpha:
         merge.transform(model3, ConcatTrainLoader, a, transform_fn=match_tensors_zipit)
+        zipit_acc.append(eval_tools.evaluate_acc(merge.head_models[0], loader=ConcatDataset, device=device))
     
+    plt.plot(np.linspace(0, 1.0, num_experiments), permute_acc)
+    plt.xlabel("alpha")
+    plt.ylabel("acc")
+    plt.legend(["zipit fusion"])
+    plt.savefig(path + "/permute.png")
+
     # print(merge.merges.keys())
     # print(merge.merges[5][0][:20, :20])
-    # print(merge.merges[5][0][:20, :].sum(dim=1))
-
     # print("DBG", torch.unique(merge.merges[5][0]))
+
     print("FUSED ACC:", eval_tools.evaluate_acc(merge.head_models[0], loader=FashionMNISTTrainLoader, device=device))
 
     save_model(merge.head_models[0], "merged.pt")
