@@ -17,7 +17,7 @@ class MergeHandler:
     Handles all (un)merge transformations on top of a graph architecture. merge/unmerge is a dict whose 
     keys are graph nodes and values are merges/unmerges to be applied at the graph node.
     """
-    def __init__(self, graph, merge, unmerge):
+    def __init__(self, graph, merge, unmerge, a):
         self.graph = graph
         # (Un)Merge instructions for different kinds of module layers.
         self.module_handlers = {
@@ -36,6 +36,7 @@ class MergeHandler:
              'Identity': self.handle_fn
         }
 
+        self.a = a
         self.merge = merge
         self.unmerge = unmerge
     
@@ -323,21 +324,26 @@ class ModelMerge(nn.Module):
             merges = self.merges[node]
             unmerges = self.unmerges[node]
 
-            if a is not None:
-                a *= 2.0
-                merges[0][merges[0] > 0] *= a
-                merges[1][merges[1] > 0] *= 2.0 - a
+            # if a is not None:
+            #     a *= 2.0
+            #     merges[0][merges[0] > 0] *= a
+            #     merges[1][merges[1] > 0] *= 2.0 - a
 
-                unmerges[0][unmerges[0] > 0] *= a
-                unmerges[1][unmerges[1] > 0] *= 2.0 - a
+            #     unmerges[0][unmerges[0] > 0] *= a
+            #     unmerges[1][unmerges[1] > 0] *= 2.0 - a
 
             print("DBG", torch.unique(merges[0]))
             print("DBG", torch.unique(merges[1]))
             print("---------------------------------")
 
+            idx = 0
             for merge, unmerge, graph in zip(merges, unmerges, self.graphs):
-                merger = MergeHandler(graph, merge, unmerge)
+                fac = 2.0 * a
+                if idx == 1:
+                    fac = 2.0 - 2.0 * a
+                merger = MergeHandler(graph, merge, unmerge, fac)
                 merger.prop_back(node)
+                idx += 1
         
     def get_merged_state_dict(self, interp_w=None):
         """
