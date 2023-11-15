@@ -99,6 +99,7 @@ def main(dataset0, dataset1, device="cuda"):
     zipit_acc = list()
     for a in alpha:
         model3 = MLP(h=128, layers=5).eval()
+        merge  = ModelMerge(graph1, graph2)
         merge.transform(model3, ConcatTrainLoader, a, transform_fn=match_tensors_zipit)
         zipit_acc.append(eval_tools.evaluate_acc(merge.head_models[0], loader=ConcatTrainLoader, device=device))
     
