@@ -96,24 +96,8 @@ def main(dataset0, dataset1, device="cuda"):
     model3 = MLP(h=128, layers=5).eval()
     merge  = ModelMerge(graph1, graph2)
 
-    alpha = torch.linspace(0.0, 1.0, 10)
-    zipit_acc = list()
-    i = 0
-    for a in alpha:
-        graph1 = MLPGraph(copy.deepcopy(model1), 5).graphify()  
-        graph2 = MLPGraph(copy.deepcopy(model2), 5).graphify()  
-        model3 = MLP(h=128, layers=5).eval()
-        merge  = ModelMerge(graph1, graph2)
-        merge.transform(model3, ConcatTrainLoader, a, transform_fn=match_tensors_zipit)
-        zipit_acc.append(eval_tools.evaluate_acc(merge.head_models[0], loader=ConcatTrainLoader, device=device))
-        print("ITER", i)
-        i+=1
-    
-    plt.plot(np.linspace(0, 1.0, 10), zipit_acc)
-    plt.xlabel("alpha")
-    plt.ylabel("acc")
-    plt.legend(["zipit fusion"])
-    plt.savefig(path + "/permute.png")
+    merge.transform(model3, ConcatTrainLoader, transform_fn=match_tensors_zipit)
+        
 
     # print(merge.merges.keys())
     # print(merge.merges[5][0][:20, :20])

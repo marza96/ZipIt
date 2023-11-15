@@ -17,7 +17,7 @@ class MergeHandler:
     Handles all (un)merge transformations on top of a graph architecture. merge/unmerge is a dict whose 
     keys are graph nodes and values are merges/unmerges to be applied at the graph node.
     """
-    def __init__(self, graph, merge, unmerge, a):
+    def __init__(self, graph, merge, unmerge):
         self.graph = graph
         # (Un)Merge instructions for different kinds of module layers.
         self.module_handlers = {
@@ -36,7 +36,6 @@ class MergeHandler:
              'Identity': self.handle_fn
         }
 
-        self.a = a
         self.merge = merge
         self.unmerge = unmerge
     
@@ -112,9 +111,9 @@ class MergeHandler:
                 lower = idx * chunk_size
                 upper = (idx+1) * chunk_size
 
-            module.weight.data[lower:upper] = self.merge @ module.weight[lower:upper] * self.a
+            module.weight.data[lower:upper] = self.merge @ module.weight[lower:upper]
             if hasattr(module, 'bias') and module.bias is not None:
-                module.bias.data[lower:upper] = self.merge @ module.bias[lower:upper] * self.a
+                module.bias.data[lower:upper] = self.merge @ module.bias[lower:upper]
 
     def prop_back(self, node):
         """ Propogate (un)merge metrics backwards through a node graph. """
@@ -315,7 +314,7 @@ class ModelMerge(nn.Module):
         self.compute_transform_time = time() - start_time
         return self.merges, self.unmerges
     
-    def apply_transformations(self, a=None):
+    def apply_transformations(self):
         """
         Applys transformations found by compute_transformations from start_at up to stop_at graph node location 
         on all graph models. 
@@ -324,26 +323,13 @@ class ModelMerge(nn.Module):
             merges = self.merges[node]
             unmerges = self.unmerges[node]
 
-            # if a is not None:
-            #     a *= 2.0
-            #     merges[0][merges[0] > 0] *= a
-            #     merges[1][merges[1] > 0] *= 2.0 - a
-
-            #     unmerges[0][unmerges[0] > 0] *= a
-            #     unmerges[1][unmerges[1] > 0] *= 2.0 - a
-
             print("DBG", torch.unique(merges[0]))
             print("DBG", torch.unique(merges[1]))
             print("---------------------------------")
-
-            idx = 0
+            
             for merge, unmerge, graph in zip(merges, unmerges, self.graphs):
-                fac = 1.0 * a
-                if idx == 1:
-                    fac = 1.0 - 1.0 * a
-                merger = MergeHandler(graph, merge, unmerge, fac)
+                merger = MergeHandler(graph, merge, unmerge)
                 merger.prop_back(node)
-                idx += 1
         
     def get_merged_state_dict(self, interp_w=None):
         """
@@ -461,7 +447,6 @@ class ModelMerge(nn.Module):
             
     def transform(self, model,
                   dataloader,
-                  a,
                   metric_classes=(CovarianceMetric, MeanMetric),
                   transform_fn=match_tensors_zipit,
                   prune_threshold=0.,
@@ -488,7 +473,7 @@ class ModelMerge(nn.Module):
                                     prune_threshold=prune_threshold,
                                     **transform_kwargs
                                     )
-        self.apply_transformations(a=a)
+        self.apply_transformations()
         
         self.merged_model.load_state_dict(self.get_merged_state_dict(), strict=False)
         
