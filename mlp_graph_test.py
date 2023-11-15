@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     merge = ModelMerge(graph1, graph2)
     merge.transform(model3, ConcatTrainLoader, transform_fn=match_tensors_zipit)
-    print(type(merge.merges))
+    print(merge.merges.keys())
 
     save_model(merge.head_models[0], "merged.pt")
      
