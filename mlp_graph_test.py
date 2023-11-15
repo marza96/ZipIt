@@ -3,7 +3,7 @@ from graphs.mlp_graph import MLPGraph
 from model_merger import ModelMerge
 from matching_functions import match_tensors_zipit
 
-from REPAIR_MTZ.models.mlp import MLP as REPAIR_MLP
+from REPAIR_MTZ.net_models.mlp import MLP as REPAIR_MLP
 from REPAIR_MTZ.REPAIR import eval
 from REPAIR_MTZ.REPAIR.neural_align_diff import NeuralAlignDiff
 
