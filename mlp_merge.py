@@ -95,10 +95,11 @@ def main(dataset0, dataset1, device="cuda"):
 
     merge.transform(model3, ConcatTrainLoader, transform_fn=match_tensors_zipit)
     
-    print(merge.merges.keys())
-    print(merge.merges[5][0][:20, :20])
-    print(merge.merges[5][0][:20, :].sum(dim=1))
+    # print(merge.merges.keys())
+    # print(merge.merges[5][0][:20, :20])
+    # print(merge.merges[5][0][:20, :].sum(dim=1))
 
+    print("DBG", len(merge.merges[5]))
     print("FUSED ACC:", eval_tools.evaluate_acc(merge.head_models[0], loader=FashionMNISTTrainLoader, device=device))
 
     save_model(merge.head_models[0], "merged.pt")
