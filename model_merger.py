@@ -324,7 +324,7 @@ class ModelMerge(nn.Module):
             unmerges = self.unmerges[node]
 
             merges[0][merges[0] > 0] *= 0.1
-            merges[1][merges[1] > 0] = 0.9
+            merges[1][merges[1] > 0] *= 0.9
 
             print("DBG", torch.unique(merges[0]))
             print("DBG", torch.unique(merges[1]))
