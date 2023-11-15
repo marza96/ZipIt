@@ -98,10 +98,11 @@ def main(dataset0, dataset1, device="cuda"):
     alpha = torch.linspace(0.0, 1.0, 10)
     zipit_acc = list()
     for a in alpha:
+        model3 = MLP(h=128, layers=5).eval()
         merge.transform(model3, ConcatTrainLoader, a, transform_fn=match_tensors_zipit)
         zipit_acc.append(eval_tools.evaluate_acc(merge.head_models[0], loader=ConcatDataset, device=device))
     
-    plt.plot(np.linspace(0, 1.0, num_experiments), permute_acc)
+    plt.plot(np.linspace(0, 1.0, 10), match_tensors_zipit)
     plt.xlabel("alpha")
     plt.ylabel("acc")
     plt.legend(["zipit fusion"])
