@@ -3,10 +3,6 @@ from graphs.mlp_graph import MLPGraph
 from model_merger import ModelMerge
 from matching_functions import match_tensors_zipit
 
-from REPAIR_MTZ.net_models.mlp import MLP as REPAIR_MLP
-from REPAIR_MTZ.REPAIR import eval
-from REPAIR_MTZ.REPAIR.neural_align_diff import NeuralAlignDiff
-
 import torchvision.transforms as transforms
 
 from torch.utils.data import ConcatDataset
@@ -73,8 +69,12 @@ if __name__ == "__main__":
 
     merge = ModelMerge(graph1, graph2)
     merge.transform(model3, ConcatTrainLoader, transform_fn=match_tensors_zipit)
+    
+    left_merge = merge.merges[5][0]
+
     print(merge.merges.keys())
     print(merge.merges[5][0][:20, :20])
+    print(merge.merges[5][0][:20, :].sum(dim=1))
 
     save_model(merge.head_models[0], "merged.pt")
      
