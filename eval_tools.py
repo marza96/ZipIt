@@ -6,6 +6,31 @@ import torch.functional as F
 from torch.cuda.amp import autocast
 
 
+def evaluate_acc_single_head(model, loader=None, device=None, stop=10e6):
+    assert loader is not None
+
+    unique_labels = list()
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for inputs, labels in loader:
+            outputs = model(inputs.to(device))
+            pred = outputs.argmax(dim=1)
+            correct += (labels.to(device) == pred).sum().item()
+            total += len(labels)
+
+            unique = torch.unique(labels).cpu().numpy().tolist()
+            unique_labels += unique
+
+            unique_labels = np.unique(unique_labels).tolist()
+
+            if total > stop:
+                break
+
+    return correct / total
+
+
 def evaluate_acc(model, loader=None, device=None, stop=10e6):
     assert loader is not None
 

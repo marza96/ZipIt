@@ -1,27 +1,37 @@
-from .base_graph import BIGGraph, NodeType
+from graphs.base_graph import BIGGraph, NodeType
+
 
 class MLPGraph(BIGGraph):
-    def __init__(self, model, num_layers):
+    def __init__(self, model, num_layers, bnorm=False):
         super().__init__(model)
 
+        self.bnorm      = bnorm
         self.num_layers = num_layers
 
     def graphify(self):
         input_node = self.create_node(node_type=NodeType.INPUT)
 
+        cnt   = 0
         graph = []
 
-        graph.append('fc1')
-        graph.append(NodeType.PREFIX)
+        for i in range(-1, self.num_layers):
+            graph.append(f"layers.{cnt}") # nn.Linear
+            cnt += 1
 
-        for i in range(self.num_layers * 2):
-            graph.append('layers.' + str(i))
-            if i % 2 != 0:
-                graph.append(NodeType.PREFIX)
+            if self.bnorm is True:
+                graph.append(f"layers.{cnt}") # nn.Batchnorm1d
+                cnt += 1
 
-        graph.append('fc2')
+            if i == self.num_layers - 1:
+                break
+
+            graph.append(f"layers.{cnt}") # nn.ReLU
+            cnt += 1
+
+            graph.append(NodeType.PREFIX)
+
         graph.append(NodeType.OUTPUT)
-
+        
         self.add_nodes_from_sequence('', graph, input_node, sep='')
 
         return self

@@ -22,6 +22,7 @@ class MergeHandler:
         # (Un)Merge instructions for different kinds of module layers.
         self.module_handlers = {
             'BatchNorm2d': self.handle_batchnorm2d,
+            'BatchNorm1d': self.handle_batchnorm2d,
             'Conv2d': self.handle_conv2d,
             'Linear': self.handle_linear,
             'LayerNorm': self.handle_layernorm,
