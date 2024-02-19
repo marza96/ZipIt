@@ -1,45 +1,42 @@
-import pdb
-import torch
 from torch import nn
-import torchvision.transforms as T
-
-# https://github.com/kuangliu/pytorch-cifar/blob/master/models/vgg.py
-cfg = {
-    'VGG11': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
-    'VGG13': [64, 64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
-    'VGG16': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'],
-    'VGG19': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
-}
 
 class VGG(nn.Module):
-    def __init__(self, vgg_name, w=1, num_classes=10):
-        super(VGG, self).__init__()
-        self.w = w
-        self.features = self._make_layers(cfg[vgg_name])
-        self.classifier = nn.Linear(self.w*512, num_classes)
+    def __init__(self, cfg, w=1, classes=10, in_channels=3, bnorm=False):
+        super().__init__()
+
+        self.in_channels = in_channels
+        self.w           = w
+        self.bnorm       = bnorm
+        self.classes     = classes
+        self.layers      = self._make_layers(cfg)
 
     def forward(self, x):
-        out = self.features(x)
+        out = self.layers[:-2](x)
         out = out.view(out.size(0), -1)
-        out = self.classifier(out)
+        out = self.layers[-2:](out)
         return out
 
     def _make_layers(self, cfg):
         layers = []
-        in_channels = 3
+        in_channels = self.in_channels
+
         for x in cfg:
             if x == 'M':
                 layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
             else:
                 layers.append(nn.Conv2d(in_channels if in_channels == 3 else self.w*in_channels,
                                      self.w*x, kernel_size=3, padding=1))
+                
+                if self.bnorm is True:
+                    layers.append(nn.BatchNorm2d(self.w*x))
+
                 layers.append(nn.ReLU(inplace=True))
                 in_channels = x
-        layers += [nn.AvgPool2d(kernel_size=1, stride=1)]
-        return nn.Sequential(*layers)
-    
-def vgg11(w=1, num_classes=10):
-    return VGG('VGG11', w, num_classes=num_classes).cuda()
 
-def vgg16(w=1, num_classes=10):
-    return VGG('VGG16', w, num_classes=num_classes).cuda()
+        layers += [nn.AvgPool2d(kernel_size=1, stride=1)]
+        layers += [nn.Linear(self.w * cfg[-2], self.classes)]
+
+        if self.bnorm is True:
+            layers.append(nn.BatchNorm1d(self.classes))
+
+        return nn.Sequential(*layers)

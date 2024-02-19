@@ -1,10 +1,9 @@
 from models.mlp import MLP
 from graphs.mlp_graph import MLPGraph
 from model_merger import ModelMerge
-from matching_functions import match_tensors_zipit, match_tensors_optimal
+from matching_functions import match_tensors_zipit
 
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
 
 from torch.utils.data import ConcatDataset
 from torchvision.transforms.functional import rotate
